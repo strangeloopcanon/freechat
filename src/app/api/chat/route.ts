@@ -27,51 +27,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Convert chat messages to O3 input format
-    const conversationHistory = messages.map((msg) => `${msg.role}: ${msg.content}`).join('\n');
-
-    // Create O3 response using the responses API
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const response = await (openai as any).responses.create({
+    // Use O3 with standard chat completions API
+    const completion = await openai.chat.completions.create({
       model: "o3",
-      input: [
-        {
-          type: "message",
-          role: "user", 
-          content: conversationHistory
-        }
-      ],
-      text: {
-        format: {
-          type: "text"
-        }
-      },
-      reasoning: {
-        effort: "medium"
-      },
-      tools: [],
-      store: true
+      messages: messages.map((msg) => ({
+        role: msg.role,
+        content: msg.content,
+      })),
+      max_tokens: 1000,
+      temperature: 0.7,
     });
 
-    // Extract the response content
-    let content = "Sorry, I encountered an error. Please try again.";
-    
-    if (response && response.output && response.output.length > 0) {
-      const firstOutput = response.output[0];
-      if (firstOutput && typeof firstOutput === 'object') {
-        // Try different possible response formats
-        if ('text' in firstOutput && firstOutput.text) {
-          content = firstOutput.text;
-        } else if ('content' in firstOutput && firstOutput.content) {
-          content = Array.isArray(firstOutput.content) 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ? firstOutput.content.map((c: any) => c.text || c.content || '').join('')
-            : firstOutput.content;
-        } else if ('message' in firstOutput && firstOutput.message) {
-          content = firstOutput.message.content || firstOutput.message;
-        }
-      }
-    }
+    // Extract response content
+    const content = completion.choices[0]?.message?.content || "Sorry, I encountered an error. Please try again.";
 
     return NextResponse.json({
       content: content,
