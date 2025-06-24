@@ -27,52 +27,57 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Create OpenAI chat completion stream
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4-turbo",
-      messages: messages.map((msg) => ({
-        role: msg.role,
-        content: msg.content,
-      })),
-      stream: true,
-      max_tokens: 1000,
-      temperature: 0.7,
-    });
+    // Convert chat messages to O3 input format
+    const conversationHistory = messages.map((msg) => `${msg.role}: ${msg.content}`).join('\n');
 
-    // Create a readable stream
-    const encoder = new TextEncoder();
-
-    const stream = new ReadableStream({
-      async start(controller) {
-        try {
-          for await (const chunk of completion) {
-            const content = chunk.choices[0]?.delta?.content || "";
-            if (content) {
-              const data = `data: ${JSON.stringify({ content })}\n\n`;
-              controller.enqueue(encoder.encode(data));
-            }
-          }
-          
-          // Send final signal
-          const finalData = `data: ${JSON.stringify({ done: true })}\n\n`;
-          controller.enqueue(encoder.encode(finalData));
-          controller.close();
-        } catch (error) {
-          console.error("Stream error:", error);
-          controller.error(error);
+    // Create O3 response using the responses API
+    const response = await (openai as any).responses.create({
+      model: "o3",
+      input: [
+        {
+          type: "message",
+          role: "user", 
+          content: conversationHistory
+        }
+      ],
+      text: {
+        format: {
+          type: "text"
         }
       },
+      reasoning: {
+        effort: "medium"
+      },
+      tools: [],
+      store: true
     });
 
-    return new NextResponse(stream, {
-      headers: {
-        "Content-Type": "text/plain; charset=utf-8",
-        "Cache-Control": "no-cache",
-        "Connection": "keep-alive",
-      },
+    // Extract the response content
+    let content = "Sorry, I encountered an error. Please try again.";
+    
+    if (response && response.output && response.output.length > 0) {
+      const firstOutput = response.output[0];
+      if (firstOutput && typeof firstOutput === 'object') {
+        // Try different possible response formats
+        if ('text' in firstOutput && firstOutput.text) {
+          content = firstOutput.text;
+        } else if ('content' in firstOutput && firstOutput.content) {
+          content = Array.isArray(firstOutput.content) 
+            ? firstOutput.content.map((c: any) => c.text || c.content || '').join('')
+            : firstOutput.content;
+        } else if ('message' in firstOutput && firstOutput.message) {
+          content = firstOutput.message.content || firstOutput.message;
+        }
+      }
+    }
+
+    return NextResponse.json({
+      content: content,
+      done: true
     });
+
   } catch (error) {
-    console.error("Chat API error:", error);
+    console.error("O3 API error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

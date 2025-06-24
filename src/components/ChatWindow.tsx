@@ -49,47 +49,20 @@ export default function ChatWindow() {
         throw new Error("Failed to get response");
       }
 
-      // Create assistant message
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: "",
-        timestamp: new Date(),
-      };
+      // Handle O3 response (JSON format, not streaming)
+      const data = await response.json();
+      
+      if (data.content) {
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: data.content,
+          timestamp: new Date(),
+        };
 
-      setMessages((prev) => [...prev, assistantMessage]);
-
-      // Read the stream
-      const reader = response.body?.getReader();
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          const chunk = new TextDecoder().decode(value);
-          const lines = chunk.split("\n");
-
-          for (const line of lines) {
-            if (line.startsWith("data: ")) {
-              try {
-                const data = JSON.parse(line.slice(6));
-                if (data.content) {
-                  setMessages((prev) =>
-                    prev.map((msg, index) =>
-                      index === prev.length - 1
-                        ? { ...msg, content: msg.content + data.content }
-                        : msg
-                    )
-                  );
-                } else if (data.done) {
-                  break;
-                }
-              } catch (e) {
-                console.error("Failed to parse chunk:", e);
-              }
-            }
-          }
-        }
+        setMessages((prev) => [...prev, assistantMessage]);
+      } else {
+        throw new Error("No content in response");
       }
     } catch (error) {
       console.error("Chat error:", error);
@@ -145,7 +118,7 @@ export default function ChatWindow() {
                   <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
                   <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
                 </div>
-                <span className="text-sm text-gray-500">AI is typing...</span>
+                <span className="text-sm text-gray-500">O3 is reasoning...</span>
               </div>
             </div>
           </div>
