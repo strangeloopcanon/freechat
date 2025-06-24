@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
     // Create OpenAI chat completion stream
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "o3-mini",
       messages: messages.map((msg) => ({
         role: msg.role,
         content: msg.content,
