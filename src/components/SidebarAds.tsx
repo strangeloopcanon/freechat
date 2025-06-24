@@ -11,10 +11,12 @@ export default function SidebarAds() {
     const loadAdsense = async () => {
       try {
         // Wait for AdSense script to be available
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if (typeof window !== 'undefined' && (window as any).adsbygoogle) {
           console.log('AdSense script detected, attempting to load ads...');
           
           // Push the ad request
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
           
           // Check if ads loaded after a delay

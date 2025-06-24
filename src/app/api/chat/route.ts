@@ -31,6 +31,7 @@ export async function POST(req: NextRequest) {
     const conversationHistory = messages.map((msg) => `${msg.role}: ${msg.content}`).join('\n');
 
     // Create O3 response using the responses API
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response = await (openai as any).responses.create({
       model: "o3",
       input: [
@@ -63,6 +64,7 @@ export async function POST(req: NextRequest) {
           content = firstOutput.text;
         } else if ('content' in firstOutput && firstOutput.content) {
           content = Array.isArray(firstOutput.content) 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ? firstOutput.content.map((c: any) => c.text || c.content || '').join('')
             : firstOutput.content;
         } else if ('message' in firstOutput && firstOutput.message) {
