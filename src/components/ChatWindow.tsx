@@ -108,7 +108,7 @@ export default function ChatWindow() {
       {/* API Key Manager */}
       {showApiKeyManager && (
         <div className="border-b border-gray-200 p-4">
-          <ApiKeyManager onApiKeyChange={setUserApiKey} currentApiKey={userApiKey} />
+          <ApiKeyManager onApiKeyChange={setUserApiKey} />
         </div>
       )}
 

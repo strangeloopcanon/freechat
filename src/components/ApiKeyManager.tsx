@@ -4,10 +4,9 @@ import { useState, useEffect } from "react";
 
 interface ApiKeyManagerProps {
   onApiKeyChange: (apiKey: string | null) => void;
-  currentApiKey?: string | null;
 }
 
-export default function ApiKeyManager({ onApiKeyChange, currentApiKey }: ApiKeyManagerProps) {
+export default function ApiKeyManager({ onApiKeyChange }: ApiKeyManagerProps) {
   const [apiKey, setApiKey] = useState("");
   const [isVisible, setIsVisible] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -77,7 +76,7 @@ export default function ApiKeyManager({ onApiKeyChange, currentApiKey }: ApiKeyM
           </div>
           <button
             onClick={handleSave}
-            className="px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
+            className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
           >
             Save
           </button>
