@@ -2,14 +2,16 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import ChatWindow from "@/components/ChatWindow";
 import SidebarAds from "@/components/SidebarAds";
 import TopBar from "@/components/TopBar";
+import { Message } from "@/types/message";
 
 export default function ChatPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -34,8 +36,8 @@ export default function ChatPage() {
       <TopBar />
       
       <div className="flex flex-1 overflow-hidden">
-        <ChatWindow />
-        <SidebarAds />
+        <ChatWindow messages={messages} setMessages={setMessages} />
+        <SidebarAds messages={messages} />
       </div>
     </div>
   );

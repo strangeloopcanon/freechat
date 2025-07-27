@@ -5,8 +5,12 @@ import { Message } from "@/types/message";
 import MessageBubble from "./MessageBubble";
 import ApiKeyManager from "./ApiKeyManager";
 
-export default function ChatWindow() {
-  const [messages, setMessages] = useState<Message[]>([]);
+interface ChatWindowProps {
+  messages: Message[];
+  setMessages: (messages: Message[]) => void;
+}
+
+export default function ChatWindow({ messages, setMessages }: ChatWindowProps) {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [userApiKey, setUserApiKey] = useState<string | null>(null);
@@ -33,7 +37,7 @@ export default function ChatWindow() {
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages([...messages, userMessage]);
     setInputValue("");
     setIsLoading(true);
 
@@ -65,22 +69,19 @@ export default function ChatWindow() {
           timestamp: new Date(),
         };
 
-        setMessages((prev) => [...prev, assistantMessage]);
+        setMessages([...messages, userMessage, assistantMessage]);
       } else {
         throw new Error("No content in response");
       }
     } catch (error) {
       console.error("Chat error:", error);
       const errorMessage = error instanceof Error ? error.message : "Sorry, I encountered an error. Please try again.";
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: (Date.now() + 1).toString(),
-          role: "assistant",
-          content: errorMessage,
-          timestamp: new Date(),
-        },
-      ]);
+      setMessages([...messages, userMessage, {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: errorMessage,
+        timestamp: new Date(),
+      }]);
     } finally {
       setIsLoading(false);
     }
