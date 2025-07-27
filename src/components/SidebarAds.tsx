@@ -249,8 +249,10 @@ export default function SidebarAds({ messages = [] }: SidebarAdsProps) {
 
   useEffect(() => {
     // Generate contextual ads when messages change
+    console.log("SidebarAds: Messages changed:", messages.length, "messages");
     if (messages.length > 0) {
       const ads = generateContextualAds(messages);
+      console.log("SidebarAds: Generated ads:", ads.length, "ads");
       setContextualAds(ads);
     } else {
       setContextualAds([]);
@@ -343,7 +345,7 @@ export default function SidebarAds({ messages = [] }: SidebarAdsProps) {
         </div>
 
         {/* Contextual Ads - Show when conversation has content */}
-        {contextualAds.length > 0 && messages.length > 0 && (
+        {messages.length > 0 && (
           <div className="space-y-4">
             <div className="text-xs text-gray-500 text-center mb-3 px-2 py-1 bg-blue-50 rounded-full border border-blue-100">
               🤖 AI-Generated Ads (Based on your conversation)
@@ -386,7 +388,7 @@ export default function SidebarAds({ messages = [] }: SidebarAdsProps) {
         )}
 
         {/* Fallback/Demo Ads - only show if AdSense fails or while waiting for approval */}
-        {(showFallback || !process.env.NEXT_PUBLIC_ADSENSE_CLIENT) && contextualAds.length === 0 && (
+        {(showFallback || !process.env.NEXT_PUBLIC_ADSENSE_CLIENT) && messages.length === 0 && (
           <div className="space-y-4">
             <div className="text-xs text-gray-500 text-center mb-3 px-2 py-1 bg-gray-100 rounded-full">
               {!process.env.NEXT_PUBLIC_ADSENSE_CLIENT 

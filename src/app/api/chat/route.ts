@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Use O3 with standard chat completions API
+    console.log("Making OpenAI API call with model: o3");
     const completion = await openai.chat.completions.create({
       model: "o3",
       messages: messages.map((msg) => ({
@@ -45,6 +46,8 @@ export async function POST(req: NextRequest) {
         content: msg.content,
       })),
       max_completion_tokens: 1000,
+    }, {
+      timeout: 60000, // 60 second timeout
     });
 
     // Extract response content
@@ -57,6 +60,11 @@ export async function POST(req: NextRequest) {
 
   } catch (error) {
     console.error("O3 API error:", error);
+    console.error("Error details:", {
+      message: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : undefined
+    });
     
     // Handle specific API key errors
     if (error instanceof Error) {
@@ -70,6 +78,12 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(
           { error: "API quota exceeded or billing issue. Please check your OpenAI account." },
           { status: 402 }
+        );
+      }
+      if (error.message.includes("timeout")) {
+        return NextResponse.json(
+          { error: "Request timed out. Please try again." },
+          { status: 408 }
         );
       }
     }
