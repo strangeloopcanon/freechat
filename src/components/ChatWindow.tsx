@@ -58,8 +58,9 @@ export default function ChatWindow({ messages, setMessages }: ChatWindowProps) {
         throw new Error(errorData.error || "Failed to get response");
       }
 
-      // Handle O3 response (JSON format, not streaming)
+      // Handle GPT-4o-mini response (JSON format, not streaming)
       const data = await response.json();
+      console.log("API response data:", data);
       
       if (data.content) {
         const assistantMessage: Message = {
@@ -71,6 +72,7 @@ export default function ChatWindow({ messages, setMessages }: ChatWindowProps) {
 
         setMessages([...messages, userMessage, assistantMessage]);
       } else {
+        console.error("No content in response:", data);
         throw new Error("No content in response");
       }
     } catch (error) {
@@ -149,7 +151,7 @@ export default function ChatWindow({ messages, setMessages }: ChatWindowProps) {
                   <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
                   <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
                 </div>
-                <span className="text-sm text-gray-500">O3 is reasoning...</span>
+                <span className="text-sm text-gray-500">AI is thinking...</span>
               </div>
             </div>
           </div>
