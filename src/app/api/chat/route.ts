@@ -39,8 +39,10 @@ export async function POST(req: NextRequest) {
 
     // Use O3 with standard chat completions API
     console.log("Making OpenAI API call with model: o3");
+    console.log("Messages being sent:", JSON.stringify(messages, null, 2));
+    
     const completion = await openai.chat.completions.create({
-      model: "o3",
+      model: "o3-mini",
       messages: messages.map((msg) => ({
         role: msg.role,
         content: msg.content,
@@ -51,7 +53,20 @@ export async function POST(req: NextRequest) {
     });
 
     // Extract response content
-    const content = completion.choices[0]?.message?.content || "Sorry, I encountered an error. Please try again.";
+    console.log("OpenAI response:", JSON.stringify(completion, null, 2));
+    console.log("Choices:", completion.choices);
+    console.log("First choice:", completion.choices[0]);
+    console.log("Message content:", completion.choices[0]?.message?.content);
+    
+    const content = completion.choices[0]?.message?.content;
+    
+    if (!content) {
+      console.error("No content in OpenAI response");
+      return NextResponse.json(
+        { error: "No response content from OpenAI" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       content: content,
