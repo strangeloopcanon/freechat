@@ -5,10 +5,6 @@ import OpenAI from "openai";
 import { ChatRequest } from "@/types/message";
 import { Session } from "next-auth";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 export async function POST(req: NextRequest) {
   try {
     // Check authentication
@@ -18,7 +14,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Parse request body
-    const { messages }: ChatRequest = await req.json();
+    const { messages, apiKey }: ChatRequest = await req.json();
 
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json(
@@ -26,6 +22,20 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Use user's API key if provided, otherwise fall back to server's key
+    const openaiApiKey = apiKey || process.env.OPENAI_API_KEY;
+    
+    if (!openaiApiKey) {
+      return NextResponse.json(
+        { error: "No API key provided" },
+        { status: 400 }
+      );
+    }
+
+    const openai = new OpenAI({
+      apiKey: openaiApiKey,
+    });
 
     // Use O3 with standard chat completions API
     const completion = await openai.chat.completions.create({
@@ -35,7 +45,6 @@ export async function POST(req: NextRequest) {
         content: msg.content,
       })),
       max_completion_tokens: 1000,
-      temperature: 0.7,
     });
 
     // Extract response content
@@ -48,6 +57,23 @@ export async function POST(req: NextRequest) {
 
   } catch (error) {
     console.error("O3 API error:", error);
+    
+    // Handle specific API key errors
+    if (error instanceof Error) {
+      if (error.message.includes("401") || error.message.includes("unauthorized")) {
+        return NextResponse.json(
+          { error: "Invalid API key. Please check your OpenAI API key." },
+          { status: 401 }
+        );
+      }
+      if (error.message.includes("quota") || error.message.includes("billing")) {
+        return NextResponse.json(
+          { error: "API quota exceeded or billing issue. Please check your OpenAI account." },
+          { status: 402 }
+        );
+      }
+    }
+    
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

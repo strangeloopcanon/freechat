@@ -16,6 +16,7 @@ export interface Conversation {
 export interface ChatRequest {
   messages: Message[];
   conversationId?: string;
+  apiKey?: string; // User's OpenAI API key
 }
 
 export interface ChatResponse {

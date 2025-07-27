@@ -3,11 +3,18 @@
 import { useState, useRef, useEffect } from "react";
 import { Message } from "@/types/message";
 import MessageBubble from "./MessageBubble";
+import ApiKeyManager from "./ApiKeyManager";
 
-export default function ChatWindow() {
-  const [messages, setMessages] = useState<Message[]>([]);
+interface ChatWindowProps {
+  messages: Message[];
+  setMessages: (messages: Message[]) => void;
+}
+
+export default function ChatWindow({ messages, setMessages }: ChatWindowProps) {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [userApiKey, setUserApiKey] = useState<string | null>(null);
+  const [showApiKeyManager, setShowApiKeyManager] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -30,7 +37,7 @@ export default function ChatWindow() {
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages([...messages, userMessage]);
     setInputValue("");
     setIsLoading(true);
 
@@ -42,11 +49,13 @@ export default function ChatWindow() {
         },
         body: JSON.stringify({
           messages: [...messages, userMessage],
+          apiKey: userApiKey, // Send user's API key if available
         }),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to get response");
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to get response");
       }
 
       // Handle O3 response (JSON format, not streaming)
@@ -60,21 +69,19 @@ export default function ChatWindow() {
           timestamp: new Date(),
         };
 
-        setMessages((prev) => [...prev, assistantMessage]);
+        setMessages([...messages, userMessage, assistantMessage]);
       } else {
         throw new Error("No content in response");
       }
     } catch (error) {
       console.error("Chat error:", error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: (Date.now() + 1).toString(),
-          role: "assistant",
-          content: "Sorry, I encountered an error. Please try again.",
-          timestamp: new Date(),
-        },
-      ]);
+      const errorMessage = error instanceof Error ? error.message : "Sorry, I encountered an error. Please try again.";
+      setMessages([...messages, userMessage, {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: errorMessage,
+        timestamp: new Date(),
+      }]);
     } finally {
       setIsLoading(false);
     }
@@ -89,6 +96,23 @@ export default function ChatWindow() {
 
   return (
     <div className="flex-1 flex flex-col h-full">
+      {/* API Key Manager Toggle */}
+      <div className="border-b border-gray-200 p-4">
+        <button
+          onClick={() => setShowApiKeyManager(!showApiKeyManager)}
+          className="text-sm text-blue-600 hover:text-blue-800 transition-colors duration-200"
+        >
+          {showApiKeyManager ? "Hide" : "Show"} API Key Settings
+        </button>
+      </div>
+
+      {/* API Key Manager */}
+      {showApiKeyManager && (
+        <div className="border-b border-gray-200 p-4">
+          <ApiKeyManager onApiKeyChange={setUserApiKey} />
+        </div>
+      )}
+
       {/* Messages Container */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 ? (
@@ -99,9 +123,16 @@ export default function ChatWindow() {
             <h2 className="text-xl font-semibold text-gray-900 mb-2">
               Welcome to FreeChat
             </h2>
-            <p className="text-gray-600 max-w-md">
+            <p className="text-gray-600 max-w-md mb-4">
               Start a conversation with our AI assistant. Ask questions, get help with tasks, or just chat!
             </p>
+            {!userApiKey && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 max-w-md">
+                <p className="text-sm text-blue-800">
+                  💡 <strong>Tip:</strong> Add your own OpenAI API key above to pay for your own usage and avoid rate limits.
+                </p>
+              </div>
+            )}
           </div>
         ) : (
           messages.map((message) => (
