@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { Message } from "@/types/message";
 import MessageBubble from "./MessageBubble";
 import ApiKeyManager from "./ApiKeyManager";
@@ -11,6 +12,7 @@ interface ChatWindowProps {
 }
 
 export default function ChatWindow({ messages, setMessages }: ChatWindowProps) {
+  const { data: session, status } = useSession();
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [userApiKey, setUserApiKey] = useState<string | null>(null);
@@ -29,6 +31,16 @@ export default function ChatWindow({ messages, setMessages }: ChatWindowProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim() || isLoading) return;
+    
+    if (status !== "authenticated") {
+      setMessages([...messages, {
+        id: Date.now().toString(),
+        role: "assistant",
+        content: "Please log in to use the chat. You can sign in using the button in the top right.",
+        timestamp: new Date(),
+      }]);
+      return;
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -88,6 +100,8 @@ export default function ChatWindow({ messages, setMessages }: ChatWindowProps) {
       if (error instanceof Error) {
         if (error.name === 'AbortError') {
           errorMessage = "Request timed out. Please try again.";
+        } else if (error.message.includes("Failed to fetch")) {
+          errorMessage = "Please make sure you're logged in. Try refreshing the page or signing in again.";
         } else {
           errorMessage = error.message;
         }
