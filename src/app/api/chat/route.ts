@@ -47,9 +47,9 @@ export async function POST(req: NextRequest) {
         role: msg.role,
         content: msg.content,
       })),
-      max_tokens: 1000,
+      max_tokens: 500, // Reduced for faster response
     }, {
-      timeout: 60000, // 60 second timeout
+      timeout: 30000, // 30 second timeout
     });
 
     // Extract response content

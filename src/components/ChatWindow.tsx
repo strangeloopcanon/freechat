@@ -42,6 +42,9 @@ export default function ChatWindow({ messages, setMessages }: ChatWindowProps) {
     setIsLoading(true);
 
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 second timeout
+      
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
@@ -51,7 +54,10 @@ export default function ChatWindow({ messages, setMessages }: ChatWindowProps) {
           messages: [...messages, userMessage],
           apiKey: userApiKey, // Send user's API key if available
         }),
+        signal: controller.signal,
       });
+      
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -77,7 +83,16 @@ export default function ChatWindow({ messages, setMessages }: ChatWindowProps) {
       }
     } catch (error) {
       console.error("Chat error:", error);
-      const errorMessage = error instanceof Error ? error.message : "Sorry, I encountered an error. Please try again.";
+      let errorMessage = "Sorry, I encountered an error. Please try again.";
+      
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMessage = "Request timed out. Please try again.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       setMessages([...messages, userMessage, {
         id: (Date.now() + 1).toString(),
         role: "assistant",
