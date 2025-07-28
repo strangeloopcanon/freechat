@@ -47,9 +47,9 @@ export async function POST(req: NextRequest) {
         role: msg.role,
         content: msg.content,
       })),
-      max_completion_tokens: 1000,
+      max_completion_tokens: 500, // Reduced for faster responses
     }, {
-      timeout: 120000, // 2 minute timeout for O3 thinking
+      timeout: 60000, // 1 minute timeout - reduced for faster feedback
     });
 
     // Extract response content
@@ -99,6 +99,18 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(
           { error: "Request timed out. Please try again." },
           { status: 408 }
+        );
+      }
+      if (error.message.includes("rate_limit") || error.message.includes("rate limit")) {
+        return NextResponse.json(
+          { error: "Rate limit exceeded. Please wait a moment and try again." },
+          { status: 429 }
+        );
+      }
+      if (error.message.includes("model") || error.message.includes("o3")) {
+        return NextResponse.json(
+          { error: "Model temporarily unavailable. Please try again in a moment." },
+          { status: 503 }
         );
       }
     }

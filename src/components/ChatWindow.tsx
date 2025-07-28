@@ -55,7 +55,7 @@ export default function ChatWindow({ messages, setMessages }: ChatWindowProps) {
 
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 115000); // 115 second timeout for O3 thinking
+      const timeoutId = setTimeout(() => controller.abort(), 65000); // 65 second timeout - reduced for faster feedback
       
       const response = await fetch("/api/chat", {
         method: "POST",
@@ -102,6 +102,12 @@ export default function ChatWindow({ messages, setMessages }: ChatWindowProps) {
           errorMessage = "Request timed out. Please try again.";
         } else if (error.message.includes("Failed to fetch")) {
           errorMessage = "Please make sure you're logged in. Try refreshing the page or signing in again.";
+        } else if (error.message.includes("timeout")) {
+          errorMessage = "The AI is taking too long to respond. Please try again.";
+        } else if (error.message.includes("rate limit")) {
+          errorMessage = "Too many requests. Please wait a moment and try again.";
+        } else if (error.message.includes("model") || error.message.includes("unavailable")) {
+          errorMessage = "The AI model is temporarily unavailable. Please try again in a moment.";
         } else {
           errorMessage = error.message;
         }
