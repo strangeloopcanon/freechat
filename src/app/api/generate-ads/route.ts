@@ -126,8 +126,9 @@ Return only valid JSON, no other text.`;
         ads: ads,
         done: true
       });
-    } catch (parseError) {
+    } catch (error) {
       console.error("Failed to parse ads JSON:", content);
+      console.error("Parse error:", error);
       return NextResponse.json(
         { error: "Invalid ad generation response" },
         { status: 500 }

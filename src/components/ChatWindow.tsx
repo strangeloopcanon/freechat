@@ -12,7 +12,7 @@ interface ChatWindowProps {
 }
 
 export default function ChatWindow({ messages, setMessages }: ChatWindowProps) {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [userApiKey, setUserApiKey] = useState<string | null>(null);
@@ -55,7 +55,7 @@ export default function ChatWindow({ messages, setMessages }: ChatWindowProps) {
 
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 65000); // 65 second timeout - reduced for faster feedback
+      const timeoutId = setTimeout(() => controller.abort(), 295000); // 295 second timeout for O3 deep thinking
       
       const response = await fetch("/api/chat", {
         method: "POST",
@@ -186,7 +186,7 @@ export default function ChatWindow({ messages, setMessages }: ChatWindowProps) {
                   <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
                   <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
                 </div>
-                <span className="text-sm text-gray-500">O3 is reasoning...</span>
+                <span className="text-sm text-gray-500">O3 is deep thinking... (this may take a few minutes)</span>
               </div>
             </div>
           </div>

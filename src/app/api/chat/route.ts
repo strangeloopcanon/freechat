@@ -47,9 +47,9 @@ export async function POST(req: NextRequest) {
         role: msg.role,
         content: msg.content,
       })),
-      max_completion_tokens: 500, // Reduced for faster responses
+      max_completion_tokens: 2000, // Increased for more comprehensive responses
     }, {
-      timeout: 60000, // 1 minute timeout - reduced for faster feedback
+      timeout: 300000, // 5 minute timeout for O3 deep thinking
     });
 
     // Extract response content
