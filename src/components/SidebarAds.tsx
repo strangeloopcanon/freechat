@@ -240,78 +240,7 @@ export default function SidebarAds({ messages = [] }: SidebarAdsProps) {
           </div>
         )}
 
-        {/* Fallback/Demo Ads - only show if AdSense fails or while waiting for approval */}
-        {(showFallback || !process.env.NEXT_PUBLIC_ADSENSE_CLIENT) && messages.length === 0 && (
-          <div className="space-y-4">
-            <div className="text-xs text-gray-500 text-center mb-3 px-2 py-1 bg-gray-100 rounded-full">
-              {!process.env.NEXT_PUBLIC_ADSENSE_CLIENT 
-                ? "Demo ads (AdSense not configured)" 
-                : "Demo ads (AdSense pending approval)"}
-            </div>
-            
-            {/* Enhanced AI Development Ad */}
-            <div className="group bg-white rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02] cursor-pointer">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center shadow-sm">
-                  <span className="text-white text-xs font-bold">AI</span>
-                </div>
-                <div className="flex-1">
-                  <span className="text-xs text-gray-500 font-medium">Sponsored</span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs text-yellow-500">★</span>
-                    <span className="text-xs text-gray-400">4.8/5 (2.1k reviews)</span>
-                  </div>
-                </div>
-              </div>
-              <h4 className="font-semibold text-sm text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
-                Master AI Development
-              </h4>
-              <p className="text-xs text-gray-600 mb-3 leading-relaxed">
-                Build real-world AI applications with hands-on projects. Learn Python, TensorFlow, and deploy your models.
-              </p>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-green-600 font-semibold">$29</span>
-                  <span className="text-xs text-gray-400 line-through">$99</span>
-                </div>
-                <button className="text-xs bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-3 py-1.5 rounded-full font-medium hover:from-blue-600 hover:to-cyan-600 transition-all duration-200 transform hover:scale-105">
-                  Start Learning →
-                </button>
-              </div>
-            </div>
 
-            {/* Enhanced Premium Chat Ad */}
-            <div className="group bg-white rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02] cursor-pointer">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-sm">
-                  <span className="text-white text-xs font-bold">PRO</span>
-                </div>
-                <div className="flex-1">
-                  <span className="text-xs text-gray-500 font-medium">Sponsored</span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs text-yellow-500">★</span>
-                    <span className="text-xs text-gray-400">4.9/5 (5.3k reviews)</span>
-                  </div>
-                </div>
-              </div>
-              <h4 className="font-semibold text-sm text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">
-                Premium AI Assistant
-              </h4>
-              <p className="text-xs text-gray-600 mb-3 leading-relaxed">
-                Unlock GPT-4, unlimited conversations, file uploads, and priority support. Perfect for professionals.
-              </p>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-green-600 font-semibold">$19</span>
-                  <span className="text-xs text-gray-400">/month</span>
-                </div>
-                <button className="text-xs bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1.5 rounded-full font-medium hover:from-purple-600 hover:to-pink-600 transition-all duration-200 transform hover:scale-105">
-                  Upgrade Now →
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </aside>
   );
