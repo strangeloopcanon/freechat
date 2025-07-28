@@ -58,29 +58,8 @@ export default function SidebarAds({ messages = [] }: SidebarAdsProps) {
       return data.ads || [];
     } catch (error) {
       console.error("Failed to generate AI ads:", error);
-      // Return default ads on error
-      return [
-        {
-          title: "Quantum Neural Interface",
-          description: "Connect your mind directly to AI. Experience the future of human-computer interaction.",
-          price: "$199",
-          originalPrice: "$599",
-          badge: "FUTURE",
-          badgeColor: "from-indigo-500 to-purple-500",
-          buttonColor: "from-indigo-500 to-purple-500",
-          buttonText: "Connect Now →"
-        },
-        {
-          title: "Temporal Reality Manipulator",
-          description: "Control time and space in your digital environment. The ultimate productivity tool.",
-          price: "$299",
-          originalPrice: "$899",
-          badge: "TIME",
-          badgeColor: "from-cyan-500 to-blue-500",
-          buttonColor: "from-cyan-500 to-blue-500",
-          buttonText: "Manipulate Reality →"
-        }
-      ];
+      // Return empty array on error - no fallback ads
+      return [];
     } finally {
       setIsGeneratingAds(false);
     }
@@ -184,8 +163,8 @@ export default function SidebarAds({ messages = [] }: SidebarAdsProps) {
           )}
         </div>
 
-        {/* Contextual Ads - Show when conversation has content */}
-        {messages.length > 0 && (
+        {/* Contextual Ads - Show when conversation has content and ads are generated */}
+        {messages.length > 0 && contextualAds.length > 0 && (
           <div className="space-y-4">
             <div className="text-xs text-gray-500 text-center mb-3 px-2 py-1 bg-blue-50 rounded-full border border-blue-100">
               🤖 AI-Generated Ads (Based on your conversation)
