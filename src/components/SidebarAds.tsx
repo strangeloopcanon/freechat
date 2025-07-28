@@ -27,6 +27,7 @@ export default function SidebarAds({ messages = [] }: SidebarAdsProps) {
   const [showFallback, setShowFallback] = useState(false);
   const [contextualAds, setContextualAds] = useState<ContextualAd[]>([]);
   const [isGeneratingAds, setIsGeneratingAds] = useState(false);
+  const [lastGeneratedCount, setLastGeneratedCount] = useState(0);
 
   // Generate contextual ads using AI
   const generateContextualAds = async (conversation: Message[]): Promise<ContextualAd[]> => {
@@ -68,15 +69,29 @@ export default function SidebarAds({ messages = [] }: SidebarAdsProps) {
   useEffect(() => {
     // Generate contextual ads when messages change
     console.log("SidebarAds: Messages changed:", messages.length, "messages");
-    if (messages.length > 0) {
+    
+    if (messages.length === 0) {
+      setContextualAds([]);
+      setLastGeneratedCount(0);
+      return;
+    }
+
+    // Only generate ads if:
+    // 1. We haven't generated any ads yet (lastGeneratedCount === 0)
+    // 2. OR we have 2+ more messages since last generation
+    const shouldGenerate = lastGeneratedCount === 0 || messages.length >= lastGeneratedCount + 2;
+    
+    if (shouldGenerate) {
+      console.log("SidebarAds: Generating new ads (messages:", messages.length, "last generated at:", lastGeneratedCount, ")");
       generateContextualAds(messages).then(ads => {
         console.log("SidebarAds: Generated ads:", ads.length, "ads");
         setContextualAds(ads);
+        setLastGeneratedCount(messages.length);
       });
     } else {
-      setContextualAds([]);
+      console.log("SidebarAds: Skipping ad generation (messages:", messages.length, "last generated at:", lastGeneratedCount, ")");
     }
-  }, [messages]);
+  }, [messages, lastGeneratedCount]);
 
   useEffect(() => {
     // Check if AdSense is available and try to load ads

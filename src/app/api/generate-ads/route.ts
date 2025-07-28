@@ -111,7 +111,15 @@ Return only valid JSON, no other text.`;
 
     // Parse the JSON response
     try {
-      const ads = JSON.parse(content);
+      // Clean the content - remove markdown code blocks if present
+      let cleanContent = content.trim();
+      if (cleanContent.startsWith('```json')) {
+        cleanContent = cleanContent.replace(/^```json\n/, '').replace(/\n```$/, '');
+      } else if (cleanContent.startsWith('```')) {
+        cleanContent = cleanContent.replace(/^```\n/, '').replace(/\n```$/, '');
+      }
+      
+      const ads = JSON.parse(cleanContent);
       console.log("Generated ads:", ads);
       
       return NextResponse.json({
