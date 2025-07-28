@@ -37,19 +37,19 @@ export async function POST(req: NextRequest) {
       apiKey: openaiApiKey,
     });
 
-    // Use GPT-4o-mini with standard chat completions API
-    console.log("Making OpenAI API call with model: gpt-4o-mini");
+    // Use O3-mini with extended thinking time
+    console.log("Making OpenAI API call with model: o3-mini (2min timeout for thinking)");
     console.log("Messages being sent:", JSON.stringify(messages, null, 2));
     
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "o3-mini",
       messages: messages.map((msg) => ({
         role: msg.role,
         content: msg.content,
       })),
-      max_tokens: 500, // Reduced for faster response
+      max_completion_tokens: 1000,
     }, {
-      timeout: 30000, // 30 second timeout
+      timeout: 120000, // 2 minute timeout for O3 thinking
     });
 
     // Extract response content

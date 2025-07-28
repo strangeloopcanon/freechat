@@ -11,9 +11,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  experimental: {
-    serverComponentsExternalPackages: ['openai'],
-  },
+  serverExternalPackages: ['openai'],
 };
 
 export default nextConfig;
